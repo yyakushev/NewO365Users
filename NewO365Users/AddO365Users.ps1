@@ -9,7 +9,7 @@ Param(
 	[string] $CSVPath,
 
 	[Parameter(Mandatory=$false)]
-	[string]$delimiter = ';',
+	[char] $delimiter = ';',
 
 	[Parameter(Mandatory=$false)]
 	[string[]]$Groups,
