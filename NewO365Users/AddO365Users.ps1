@@ -18,7 +18,7 @@ Param(
 	[string]$LogPath = $PWD
 )
 
-$LogName = $MyInvocation.ScriptName+".log"
+$LogName = "AddO365Users"+".log"
 
 #Set the error action preference for the script
 $script:ErrorActionPreference = "Stop"
