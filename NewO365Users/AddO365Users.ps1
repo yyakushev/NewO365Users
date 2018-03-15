@@ -159,7 +159,7 @@ if ($License) {
 					Write-InformationEventLog -msg "Set usage location to DE for the user $($user.UserPrincipalName)" -LogPath $LogPath 
 				}
 			}
-			if ($user.AddLicense) {
+			if ($user.AddLicense -eq "Yes") {
 				if ($WhatIfPreference) {
 					"What if: Performing the operation `"Add license `"$License`" to the user $($user.UserPrincipalName)`""
 				} else {
