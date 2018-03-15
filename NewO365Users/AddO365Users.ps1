@@ -9,6 +9,9 @@ Param(
 	[string] $CSVPath,
 
 	[Parameter(Mandatory=$false)]
+	[string]$delimiter = ';',
+
+	[Parameter(Mandatory=$false)]
 	[string[]]$Groups,
 
 	[Parameter(Mandatory=$false)]
@@ -83,7 +86,7 @@ try {
 }
 
 #Import users from csv
-$Users = Import-Csv $CSVPath 
+$Users = Import-Csv $CSVPath -Delimiter $delimiter
 
 $script:ErrorActionPreference = "SilentlyContinue"
 #Create new users
