@@ -18,7 +18,7 @@ Param(
 	[string]$LogPath = $PWD
 )
 
-$LogName = "AddO365Users"+".log"
+$LogName = "AddO365Users.log"
 
 #Set the error action preference for the script
 $script:ErrorActionPreference = "Stop"
@@ -32,10 +32,10 @@ function Write-ErrorEventLog ([string] $msg, [string] $LogPath) {
 	$host.ui.RawUI.ForegroundColor = $t
 	try {
 		if  (Test-Path -Path $logpath -ErrorAction SilentlyContinue ) {
-			"$(get-date -Format "HH:mm:ss dd-MM-yyyy: ")$msg" | Out-File -FilePath "$logPath\$LogName" -Append
+			"$(get-date -Format "HH:mm:ss dd-MM-yyyy: ")$msg" | Out-File -FilePath "$LogPath\$LogName" -Append
 		}
 	} catch {
-		"$(get-date -Format "HH:mm:ss dd-MM-yyyy: ")$msg" | Out-File -FilePath "$PWD\$LogName" -Append
+		"$(get-date -Format "HH:mm:ss dd-MM-yyyy: ")$msg" | Out-File -FilePath "$LogPath\$LogName" -Append
 	}
 	$WhatIfPreference = $WhatIfPreferenceVariable
 } #function write error 
@@ -49,10 +49,10 @@ function Write-InformationEventLog ([string] $msg, [string] $LogPath) {
 	$host.ui.RawUI.ForegroundColor = $t
 	try {
 		if  (Test-Path -Path $logpath -ErrorAction SilentlyContinue ) {
-			"$(get-date -Format "HH:mm:ss dd-MM-yyyy: ")$msg" | Out-File -FilePath "$logPath\$LogName" -Append
+			"$(get-date -Format "HH:mm:ss dd-MM-yyyy: ")$msg" | Out-File -FilePath "$LogPath\$LogName" -Append
 		}
 	} catch {
-		"$(get-date -Format "HH:mm:ss dd-MM-yyyy: ")$msg" | Out-File -FilePath "$PWD\$LogName" -Append 
+		"$(get-date -Format "HH:mm:ss dd-MM-yyyy: ")$msg" | Out-File -FilePath "$LogPath\$LogName" -Append 
 	}
 	$WhatIfPreference = $WhatIfPreferenceVariable
 } #function write information
@@ -89,14 +89,16 @@ $script:ErrorActionPreference = "SilentlyContinue"
 #Create new users
 foreach ($user in $Users) {
 	try {
+		$getuserinfo = $False
 		if (-not (Get-MsolUser -UserPrincipalName $user.UserPrincipalName)) {
+			$getuserinfo = $True
 			if ($WhatIfPreference) {
 				"What if: Performing the operation `"Create new user $($user.UserPrincipalName) in Office 365`""
-			} else { 
+			} else {
 				$NewO365Users += New-MsolUser -DisplayName $user.DisplayName `
 						-UserPrincipalName $user.UserPrincipalName `
-						-FirstName $user.DisplayName.split()[0] `
-						-LastName $user.DisplayName.split()[1] `
+						-FirstName $user.FirstName `
+						-LastName $user.LastName `
 						-Department $user.BusinessUnit `
 						-City $user.City `
 						-Country $user.Country 
@@ -106,7 +108,11 @@ foreach ($user in $Users) {
 			Write-InformationEventLog -msg "The user $($user.UserPrincipalName) is already exist in Office 365" -LogPath $LogPath
 		}
 	} catch {
-		Write-ErrorEventLog -msg "User $($user.UserPrincipalName) cannot be created. Please check the error: $($error[0].ToString())" -LogPath $LogPath
+		if ($getuserinfo) {
+			Write-ErrorEventLog -msg "User $($user.UserPrincipalName) cannot be created. Please check the error: $($error[0].ToString())" -LogPath $LogPath
+		} else {
+			Write-ErrorEventLog -msg "Cannot get user data from O365 for user $($user.UserPrincipalName). Please check the error: $($error[0].ToString())" -LogPath $LogPath
+		}
 	}
 }
 #Export new users to the CSV file
