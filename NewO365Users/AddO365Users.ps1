@@ -89,12 +89,12 @@ try {
 $Users = Import-Csv $CSVPath -Delimiter $delimiter
 
 $script:ErrorActionPreference = "SilentlyContinue"
+
+$NewO365Users = @()
 #Create new users
 foreach ($user in $Users) {
 	try {
-		$getuserinfo = $False
 		if (-not (Get-MsolUser -UserPrincipalName $user.UserPrincipalName)) {
-			$getuserinfo = $True
 			if ($WhatIfPreference) {
 				"What if: Performing the operation `"Create new user $($user.UserPrincipalName) in Office 365`""
 			} else {
@@ -104,23 +104,19 @@ foreach ($user in $Users) {
 						-LastName $user.LastName `
 						-Department $user.BusinessUnit `
 						-City $user.City `
-						-Country $user.Country 
+						-Country $user.Country | Out-File "NewO365Users.log" -Append -Encoding utf8
 				Write-InformationEventLog -msg "New user $($user.UserPrincipalName) has been created in Office 365" -LogPath $LogPath
 			}
 		} else {
 			Write-InformationEventLog -msg "The user $($user.UserPrincipalName) is already exist in Office 365" -LogPath $LogPath
 		}
 	} catch {
-		if ($getuserinfo) {
-			Write-ErrorEventLog -msg "User $($user.UserPrincipalName) cannot be created. Please check the error: $($error[0].ToString())" -LogPath $LogPath
-		} else {
-			Write-ErrorEventLog -msg "Cannot get user data from O365 for user $($user.UserPrincipalName). Please check the error: $($error[0].ToString())" -LogPath $LogPath
-		}
+		Write-ErrorEventLog -msg "User $($user.UserPrincipalName) cannot be created. Please check the error: $($error[0].ToString())" -LogPath $LogPath
 	}
 }
 #Export new users to the CSV file
 try {
-	$NewO365Users | Export-Csv "CreatedO365Users-$(get-date -Format "dd-MM-yyyy_HH-mm-ss").csv" -Encoding UTF8
+	$NewO365Users | Export-Csv "CreatedO365Users-$(get-date -Format "dd-MM-yyyy_HH-mm-ss").csv" -Encoding UTF8 -Delimiter $delimiter
 	Write-InformationEventLog -msg "Created users list has been exported to CSV" -LogPath $LogPath
 } catch {
 	Write-ErrorEventLog -msg "Export to CSV failed. Please check the error: $($error[0].ToString())" -LogPath $LogPath

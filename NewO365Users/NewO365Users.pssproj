@@ -28,7 +28,7 @@
   <ItemGroup />
   <ItemGroup>
     <Compile Include="AddO365Users.ps1" />
-    <Compile Include="ChangePasswords.ps1" />
+    <Compile Include="NewPasswords.ps1" />
     <Compile Include="ConvertNames.ps1" />
     <Compile Include="EmailNotifications.ps1" />
     <Compile Include="MFAReport.ps1" />
