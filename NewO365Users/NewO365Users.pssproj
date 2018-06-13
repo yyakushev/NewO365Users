@@ -32,6 +32,7 @@
     <Compile Include="ConvertNames.ps1" />
     <Compile Include="EmailNotifications.ps1" />
     <Compile Include="MFAReport.ps1" />
+    <Compile Include="RemoveO365GroupMember.ps1" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Target Name="Build" />
